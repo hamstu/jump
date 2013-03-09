@@ -25,25 +25,20 @@ Options:
 import os
 import sys
 import urwid
-#import logging
+import logging
 
 
 class PathItemWidget(urwid.WidgetWrap):
-    def __init__(self, idx, path, parent):
+    def __init__(self, idx, path, colwidth, parent):
         self.id = id
         self.content = idx
         self.parent = parent
-        #self.item = [
-        #    ('fixed', 15, urwid.Padding(urwid.AttrWrap(
-        #        urwid.Text('%s' % str(id)), 'body', 'focus'), left=2)),
-        #    urwid.AttrWrap(urwid.Text('%s' % description), 'body', 'focus'),
-        #]
-        #self.item = urwid.AttrWrap(urwid.Text(' [%s] %s' % (str(idx), path)), 'box', 'focus')
+
         basename = os.path.basename(path)
-        text = [('dull', ' %s ' % str(idx)), ('white', "%s - " % basename), path]
+        text = [('dull', ' %s  ' % str(idx)), ('white', "%s" % basename.ljust(colwidth, " ")), path]
         text = urwid.Text(text)
+
         self.item = urwid.AttrWrap(text, 'box', 'focus')
-        #w = urwid.Columns(self.item)
         self.__super.__init__(self.item)
 
     def selectable(self):
@@ -68,37 +63,41 @@ class JumperListScreen:
         self.palette = [
             ('focus',   'dark red',     'black',    'standout',     '#fc0',     '#000'),
             ('head',    'light red',    'black',    '',             '#600',     '#f80'),
-            ('foot',    'light red',    'black',    '',             'g60',      'g20'),
+            ('foot',    'light red',    'black',    '',             'g60',      'g15'),
             ('bg',      'dark gray',    '',         '',             'g14',      '#000'),
-            ('box',     '',             '',         '',             'g80',      'g15'),
-            ('dull',    '',             '',         '',             'g35',      'g15'),
-            ('white',    '',             '',         '',            '#fff',     'g15'), ]
+            ('box',     '',             '',         '',             'g80',      'g9'),
+            ('dull',    '',             '',         '',             'g35',      'g9'),
+            ('white',    '',             '',         '',            '#fff',     'g9'), ]
 
         self.loadItems()
 
     def loadItems(self):
+        colwidth = max([len(os.path.basename(x)) for x in self.jumper.paths]) + 2
         for idx, p in enumerate(self.jumper.paths):
-            self.items.append(PathItemWidget(idx, p, self))
+            self.items.append(PathItemWidget(idx, p, colwidth, self))
 
     def doSearch(self):
+        maxdigits = len(str(len(self.items)))
         if self.search == "":
             self.updateHeader('')
             return
         else:
+            if len(self.search) > maxdigits:
+                self.search = self.search[-1:]
+
             idx = int(self.search)
-            #logging.debug("Searching for " + str(idx))
             if idx < len(self.items):
                 self.updateHeader('%s selected (backspace to clear)' % str(idx))
                 self.listbox.set_focus(idx)
             else:
                 self.updateHeader('%s not found (backspace to clear)' % str(idx))
+                self.listbox.set_focus(len(self.items)-1)
 
     def updateHeader(self, title):
         if self.view:
-            self.view.set_header(urwid.AttrWrap(urwid.Text(' jump %s' % str(title)), 'head'))
+            self.view.set_header(urwid.AttrWrap(urwid.Text(' jump %s' % str(title), align='center'), 'head'))
 
     def keystroke(self, input):
-        #logging.debug('toplevel = %s' % str(input))
         if input in ('q', 'Q'):
             raise urwid.ExitMainLoop()
 
@@ -114,13 +113,9 @@ class JumperListScreen:
             self.search = self.search + str(input)
             self.doSearch()
 
-        #elif input is 'backspace':
-        #    self.search = self.search[:-1]
-        #    self.doSearch()
-
     def start(self):
-        header = urwid.AttrMap(urwid.Text(' jump '), 'head')
-        footer = urwid.AttrMap(urwid.Text('pwd: %s\nv1.0 | \'q\' to quit | type digits for quick select' % self.jumper.cwd), 'foot')
+        header = urwid.AttrMap(urwid.Text(' jump ', align='center'), 'head')
+        footer = urwid.AttrMap(urwid.Text(' pwd: %s\n v1.0 | \'q\' to quit | type digits for quick select' % self.jumper.cwd), 'foot')
         self.listbox = urwid.ListBox(urwid.SimpleListWalker(self.items))
         self.view = urwid.Frame(self.listbox, header=header, footer=footer)
 
@@ -162,7 +157,7 @@ class Jumper():
         sys.exit()
 
     def run(self, arguments):
-        """Start the program and runs a command based on the arguments"""
+        """Runs a jump command based on the arguments"""
         if len(arguments) > 1:
             command = arguments[1]
 
@@ -178,10 +173,22 @@ class Jumper():
                 else:
                     self.paths.append(self.cwd)
                     self.savePaths()
+
+            # --------------
+            # Show help
+            # --------------
             elif command in ["-help", "-h", "?"]:
                 self.printHelp()
-            elif command == "-edit" or command == "-e":
+
+            # --------------
+            # Edit paths
+            # --------------
+            elif command in ["-edit", "-e"]:
                 os.system('"${EDITOR:-vi}" %s' % os.path.join(self.home_path, ".jumplist"))
+
+            # --------------
+            # Jump to index
+            # --------------
             elif command.isdigit():
                 index = int(command)
                 if index < len(self.paths):
@@ -209,7 +216,7 @@ class Jumper():
 
 
 if __name__ == '__main__':
-    #logging.basicConfig(filename='jump.log', level=logging.ERROR)
-    #logging.debug('Starting jump...')
+    logging.basicConfig(filename='/Users/hamstu/jump.log', level=logging.DEBUG)
+    logging.debug('Starting jump...')
     jumper = Jumper()
     jumper.run(sys.argv)
