@@ -1,4 +1,4 @@
 jump
 ====
 
-Jump lets you `cd` in your terminal fast. Like a super hero.
+Jump makes your `cd`ing lightning fast.
