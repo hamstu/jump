@@ -1,5 +1,7 @@
 #!/bin/bash
 
+######################################################
+#
 # jump
 # Makes your `cd`ing lightning fast.
 #
@@ -7,6 +9,8 @@
 # @url: https://github.com/hamstu/jump
 #
 # See README.md for installation and usage.
+#
+######################################################
 
 echo '' > ~/.jumpfile         # 1: Clear/prepare the jumpfile
 jump.py $1                    # 2: Call our jump program (it outputs to the .jumpfile)

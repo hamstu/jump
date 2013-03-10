@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+######################################################
+#
 # jump
 # Makes your `cd`ing lightning fast.
 #
@@ -7,6 +9,8 @@
 # @url: https://github.com/hamstu/jump
 #
 # See README.md for installation and usage.
+#
+######################################################
 
 """\
 Jump makes your `cd`ing lightning fast.
@@ -25,7 +29,6 @@ Options:
 import os
 import sys
 import urwid
-import logging
 
 
 class PathItemWidget(urwid.WidgetWrap):
@@ -45,7 +48,6 @@ class PathItemWidget(urwid.WidgetWrap):
         return True
 
     def keypress(self, size, key):
-        #logging.debug('itemlevel = %s' % str([size, key]))
         if key in ['down', 'up']:  # pass these to the JumperListScreen
             self.parent.keystroke(key)
         return key
@@ -216,7 +218,5 @@ class Jumper():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='/Users/hamstu/jump.log', level=logging.DEBUG)
-    logging.debug('Starting jump...')
     jumper = Jumper()
     jumper.run(sys.argv)
