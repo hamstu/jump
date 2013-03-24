@@ -3,7 +3,7 @@
 ######################################################
 #
 # jump
-# Makes your `cd`ing lightning fast.
+# Makes your `cd`ing fast and fun.
 #
 # @author: Hamish Macpherson
 # @url: https://github.com/hamstu/jump

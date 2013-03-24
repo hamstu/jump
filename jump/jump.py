@@ -3,7 +3,7 @@
 ######################################################
 #
 # jump
-# Makes your `cd`ing lightning fast.
+# Makes your `cd`ing fast and fun.
 #
 # @author: Hamish Macpherson
 # @url: https://github.com/hamstu/jump
@@ -13,7 +13,7 @@
 ######################################################
 
 """\
-Jump makes your `cd`ing lightning fast.
+Jump makes your `cd`ing fast and fun.
 
 Usage:
   j [OPTION]
@@ -171,7 +171,6 @@ class Jumper():
                     newpath = arguments[2]
                     self.paths.append(newpath)
                     self.savePaths()
-                    print self.paths
                 else:
                     self.paths.append(self.cwd)
                     self.savePaths()
@@ -213,8 +212,12 @@ class Jumper():
 
     def loadPaths(self):
         jumplist = os.path.join(self.home_path, ".jumplist")
-        jumplist = open(jumplist, "r").readlines()
-        self.paths = [x.strip() for x in jumplist]
+        try:
+            jumplist = open(jumplist, "r").readlines()
+            self.paths = [x.strip() for x in jumplist]
+        except IOError:
+            # File not found? Let's fill in a default
+            self.paths = [self.home_path]
 
 
 if __name__ == '__main__':

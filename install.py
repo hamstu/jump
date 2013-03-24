@@ -3,7 +3,7 @@
 ######################################################
 #
 # jump
-# Makes your `cd`ing lightning fast.
+# Makes your `cd`ing fast and fun.
 #
 # This script installs `jump` from:
 #   https://github.com/hamstu/jump
@@ -60,7 +60,10 @@ def main(args):
         proc = subprocess.Popen(["which jump.sh"], stdout=subprocess.PIPE, shell=True)
         (out, err) = proc.communicate()
         if out != "":
-            abort("It looks like you already have a `j` command installed!")
+            print "It looks like you already have a `j` command installed!"
+            do = raw_input("Do you want to continue anyway? [y/n]")
+            if not "y" in do:
+                abort("Cancelled install.")
 
         # 0: Store everything in a temp folder
         ret = os.system("mkdir %s &> /dev/null" % config['temp'])
