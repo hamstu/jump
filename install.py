@@ -60,7 +60,7 @@ def main(args):
         proc = subprocess.Popen(["which jump.sh"], stdout=subprocess.PIPE, shell=True)
         (out, err) = proc.communicate()
         if out != "":
-            print "It looks like you already have a `j` command installed!"
+            print "It looks like you already have jump installed!"
             do = raw_input("Do you want to continue anyway? [y/n]")
             if not "y" in do:
                 abort("Cancelled install.")
