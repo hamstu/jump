@@ -15,10 +15,11 @@
 import os
 import sys
 import subprocess
+import tempfile
 
 config = {
     "orig": os.getcwd(),
-    "temp": os.path.join(os.getcwd(), ".jumpinstall"),
+    "temp": tempfile.mkdtemp('jmpinstall'),
     "bash": "%s/.bash_profile" % os.path.expanduser("~"),
     "bin": "/usr/bin",
 
@@ -65,10 +66,7 @@ def main(args):
             if not "y" in do:
                 abort("Cancelled install.")
 
-        # 0: Store everything in a temp folder
-        ret = os.system("mkdir %s &> /dev/null" % config['temp'])
-        if ret != 0:
-            abort("Could not create temporary directory %s" % config['temp'])
+	# 0: Store everything in the temp folder
         os.chdir(config['temp'])
 
         # 1: Check Dependencies
@@ -79,7 +77,13 @@ def main(args):
         except ImportError:
             print
             print "The Python library `urwid` was not found."
-            do = raw_input("Would you like to install it now? [y/n] ")
+
+	    if sys.platform != 'darwin':
+		do = 'n'
+		abort("Please follow the installation instruction here: https://github.com/wardi/urwid/wiki/Installation-instructions")
+
+	    else:
+		do = raw_input("Would you like to install it now? [y/n] ")
 
             if "y" in do:
                 print
